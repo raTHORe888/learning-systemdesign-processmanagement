@@ -33,7 +33,7 @@ Resources cannot be forcibly taken away from a process. The process must release
 ### 4. Circular Wait
 A circular chain of processes exists, where each process waits for a resource held by the next process in the chain.
 
-## Mermaid Diagram: Deadlock Conditions
+## Diagram: Deadlock Conditions
 ```mermaid
 flowchart TD
     D[Deadlock]
@@ -48,7 +48,7 @@ flowchart TD
     C --> D
 ```
 
-## Mermaid Diagram
+## Diagram: Deadlock Cycle
 ```mermaid
 flowchart LR
     P1[Process P1] -->|holds| R1[Resource R1]
@@ -214,6 +214,35 @@ OK
 | ⚠️ DEADLOCK DETECTED | Both processes are permanently blocked waiting for each other. |
 
 > **Key insight:** The first test confirms both processes can get started (they get their first lock). The second test confirms neither process can finish (they both time out waiting for the second lock). Together they prove the classic circular-wait deadlock.
+
+### Lock Acquisition Flow
+```mermaid
+flowchart TD
+    Start([Start])
+
+    subgraph Process P1
+        P1A["P1 acquires Lock A ✅"]
+        P1B["P1 waits for Lock B ❌"]
+        P1T["P1 times out — BLOCKED"]
+    end
+
+    subgraph Process P2
+        P2B["P2 acquires Lock B ✅"]
+        P2A["P2 waits for Lock A ❌"]
+        P2T["P2 times out — BLOCKED"]
+    end
+
+    DL(["⚠️ DEADLOCK DETECTED"])
+
+    Start --> P1A
+    Start --> P2B
+    P1A --> P1B
+    P2B --> P2A
+    P1B -- "Lock B held by P2" --> P1T
+    P2A -- "Lock A held by P1" --> P2T
+    P1T --> DL
+    P2T --> DL
+```
 
 ## Summary
 Deadlock is a serious concurrency problem where processes wait forever for resources held by each other. It occurs only when mutual exclusion, hold and wait, no preemption, and circular wait all exist together. Good resource ordering, prevention strategies, and detection mechanisms help systems avoid or recover from deadlocks.
