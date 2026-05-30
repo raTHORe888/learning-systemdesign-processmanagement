@@ -152,5 +152,68 @@ If a deadlock is detected in a database system:
 - Let other transactions continue
 - Restart the aborted transaction later
 
+## Python Demo & Unit Test Results
+
+The `Deadlock/` folder contains a working Python demo (`deadlock_demo.py`) and unit tests (`test_deadlock_demo.py`) that prove the deadlock pattern in code.
+
+### How to Run
+```bash
+cd Deadlock
+/usr/local/bin/python3 -m unittest test_deadlock_demo.py -v
+```
+
+### Test Output
+```
+test_both_processes_acquire_first_lock ... 
+
+──────────────────────────────────────────────────────────
+  TEST: Both processes acquire their FIRST lock
+──────────────────────────────────────────────────────────
+  Process       Resource        Outcome
+  -------       --------        -------
+  P1            Lock A (1st)    ✅ ACQUIRED
+  P1            Lock B (2nd)    ❌ BLOCKED (deadlock)
+  P2            Lock B (1st)    ✅ ACQUIRED
+  P2            Lock A (2nd)    ❌ BLOCKED (deadlock)
+──────────────────────────────────────────────────────────
+  Conclusion : ⚠️  DEADLOCK DETECTED
+──────────────────────────────────────────────────────────
+
+ok
+test_both_processes_block_on_second_lock ...
+
+──────────────────────────────────────────────────────────
+  TEST: Both processes BLOCK on their second lock
+──────────────────────────────────────────────────────────
+  Process       Resource        Outcome
+  -------       --------        -------
+  P1            Lock A (1st)    ✅ ACQUIRED
+  P1            Lock B (2nd)    ❌ BLOCKED (deadlock)
+  P2            Lock B (1st)    ✅ ACQUIRED
+  P2            Lock A (2nd)    ❌ BLOCKED (deadlock)
+──────────────────────────────────────────────────────────
+  Conclusion : ⚠️  DEADLOCK DETECTED
+──────────────────────────────────────────────────────────
+
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.315s
+
+OK
+```
+
+### What the Results Tell You
+
+| Row | What it means |
+| --- | --- |
+| P1 — Lock A (1st) ✅ | P1 successfully grabbed Lock A before P2 could. |
+| P1 — Lock B (2nd) ❌ | P1 tried to grab Lock B but P2 already owns it — P1 is now stuck. |
+| P2 — Lock B (1st) ✅ | P2 successfully grabbed Lock B before P1 could. |
+| P2 — Lock A (2nd) ❌ | P2 tried to grab Lock A but P1 already owns it — P2 is now stuck. |
+| ⚠️ DEADLOCK DETECTED | Both processes are permanently blocked waiting for each other. |
+
+> **Key insight:** The first test confirms both processes can get started (they get their first lock). The second test confirms neither process can finish (they both time out waiting for the second lock). Together they prove the classic circular-wait deadlock.
+
 ## Summary
 Deadlock is a serious concurrency problem where processes wait forever for resources held by each other. It occurs only when mutual exclusion, hold and wait, no preemption, and circular wait all exist together. Good resource ordering, prevention strategies, and detection mechanisms help systems avoid or recover from deadlocks.
